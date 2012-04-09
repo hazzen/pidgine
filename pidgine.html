@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <title>pidgine</title>
+    <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js'></script>
+    <script type='text/javascript' src='js/base.js'></script>
+    <script type='text/javascript' src='js/renderer.js'></script>
+    <script type='text/javascript' src='js/entities.js'></script>
+  </head>
+  <body>
+    <div>
+    <div id="game" tabindex="0">
+    </div>
+
+    <script type="text/javascript">
+      DEBUG = false;
+      FRAME_RATE = 60;
+
+      var boxes = [];
+
+      for (var i = 0; i < 200; ++i) {
+        boxes.push(new Collider(
+            new geom.AABB(randInt(5, 635), randInt(5, 475), randInt(5, 20), randInt(5, 20)),
+            randFlt(-10, 10), randFlt(-10, 10)));
+      }
+
+      boxes.push(new Collider(
+          new geom.AABB(0, 0, 640, 2),
+          0, 0));
+      boxes.push(new Collider(
+          new geom.AABB(0, 478, 640, 2),
+          0, 0));
+
+      boxes.push(new Collider(
+          new geom.AABB(0, 0, 2, 480),
+          0, 0));
+      boxes.push(new Collider(
+          new geom.AABB(638, 0, 2, 480),
+          0, 0));
+
+      var tickFn = function(t) {
+        Collider.stepAll(boxes, t);
+      };
+
+      var renderFn = function(renderer) {
+        var ctx = renderer.context();
+        ctx.fillStyle = 'rgb(50, 255, 60)';
+        for (var i = 0; i < boxes.length; ++i) {
+          ctx.fillRect(boxes[i].x(), boxes[i].y(),
+                       boxes[i].w(), boxes[i].h());
+        }
+      };
+
+      var gameElem = document.getElementById('game');
+      var daRenderer = new Renderer(gameElem, 640, 480);
+
+      var lastFrame = new Date().getTime();
+      (function renderLoop() {
+
+        var now = new Date().getTime();
+        var numFrames = Math.floor((now - lastFrame) / (1000 / FRAME_RATE));
+        lastFrame = lastFrame + numFrames * (1000 / FRAME_RATE);
+        if (numFrames > 5) {
+          numFrames = 1;
+        }
+        for (var i = 0; i < numFrames; i++) {
+          tickFn(1 / FRAME_RATE);
+        }
+        daRenderer.tick();
+        daRenderer.render(renderFn);
+
+        requestAnimFrame(renderLoop, daRenderer.canvasElem_);
+      })();
+    </script>
+  </body>
+</html>
