@@ -1,6 +1,6 @@
 // +----------------------------------------------------------------------------
 // | Collider
-Collider = function(aabb, vx, vy, mass) {
+Collider = function(aabb, vx, vy) {
   this.aabb = aabb;
   this.w_ = aabb.p2.x - aabb.p1.x;
   this.h_ = aabb.p2.y - aabb.p1.y;
@@ -10,7 +10,6 @@ Collider = function(aabb, vx, vy, mass) {
   this.oy = aabb.p2.y;
   this.ovx = vx;
   this.ovy = vy;
-  this.mass = mass;
 };
 
 Collider.fromCenter = function(x, y, w, h, vx, vy, mass) {
@@ -25,7 +24,6 @@ Collider.prototype.x = function() {
 Collider.prototype.y = function() {
   return this.aabb.p1.y;
 };
-
 
 Collider.prototype.cx = function() {
   return (this.aabb.p1.x + this.aabb.p2.x) / 2;
@@ -100,17 +98,28 @@ Collider.stepAll = function(colliders, t) {
   var ts = Collider.collideAll_(colliders, t);
   var tsLen = ts.length;
   for (var i = 0; i < tsLen; ++i) {
-    var it = Math.min(1, Math.max(0, ts[i].time));
-    var collided = colliders[i];
-    collided.aabb.p1.x += it * t * collided.vx;
-    collided.aabb.p1.y += it * t * collided.vy;
-    collided.aabb.p2.x += it * t * collided.vx;
-    collided.aabb.p2.y += it * t * collided.vy;
-    if (ts[i].direction == Collider.COLLIDE_X) {
-      collided.vx *= -0.8;
-    } else if (ts[i].direction == Collider.COLLIDE_Y) {
-      collided.vy *= -0.8;
+    var collider = colliders[i];
+    var collideStruct = ts[i];
+    var other = collideStruct.object;
+    // Overlapping - push out.
+    if (collideStruct.time < 0) {
+      // Could max the xp/yp so things don't jump as much.
+      var xp = (Math.min(collider.aabb.p2.x, other.aabb.p2.x) -
+                Math.max(collider.aabb.p1.x, other.aabb.p1.x));
+      var yp = (Math.min(collider.aabb.p2.y, other.aabb.p2.y) -
+                Math.max(collider.aabb.p1.y, other.aabb.p1.y));
+      var xMult = collider.aabb.p1.x < other.aabb.p1.x ? -1 : 1;
+      var yMult = collider.aabb.p1.y < other.aabb.p1.y ? -1 : 1;
+      collider.aabb.addXY(xMult * xp / 2, yMult * yp / 2);
+      other.aabb.addXY(xMult * xp / -2, yMult * yp / -2);
     }
+    var it = Math.min(1, Math.max(0, ts[i].time));
+    if (collideStruct.direction == Collider.COLLIDE_X) {
+      collider.vx *= -0.8;
+    } else if (collideStruct.direction == Collider.COLLIDE_Y) {
+      collider.vy *= -0.8;
+    }
+    collider.aabb.addXY(it * t * collider.vx, it * t * collider.vy);
   }
 };
 

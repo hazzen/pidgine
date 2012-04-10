@@ -212,6 +212,13 @@ geom.AABB = function(x, y, w, h) {
   this.p2 = new geom.Point(x + w, y + h);
 };
 
+geom.AABB.prototype.addXY = function(x, y) {
+  this.p1.x += x;
+  this.p2.x += x;
+  this.p1.y += y;
+  this.p2.y += y;
+};
+
 geom.AABB.prototype.xRange = function(opt_range) {
   return geom.Range.copyOrNew(this.p1.x, this.p2.x, opt_range);
 };

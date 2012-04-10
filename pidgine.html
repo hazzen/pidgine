@@ -3,6 +3,7 @@
     <title>pidgine</title>
     <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js'></script>
     <script type='text/javascript' src='js/base.js'></script>
+    <script type='text/javascript' src='js/pidgine.js'></script>
     <script type='text/javascript' src='js/renderer.js'></script>
     <script type='text/javascript' src='js/entities.js'></script>
   </head>
@@ -37,39 +38,33 @@
           new geom.AABB(638, 0, 2, 480),
           0, 0));
 
-      var tickFn = function(t) {
-        Collider.stepAll(boxes, t);
-      };
-
-      var renderFn = function(renderer) {
-        var ctx = renderer.context();
-        ctx.fillStyle = 'rgb(50, 255, 60)';
-        for (var i = 0; i < boxes.length; ++i) {
-          ctx.fillRect(boxes[i].x(), boxes[i].y(),
-                       boxes[i].w(), boxes[i].h());
-        }
-      };
-
       var gameElem = document.getElementById('game');
       var daRenderer = new Renderer(gameElem, 640, 480);
 
-      var lastFrame = new Date().getTime();
-      (function renderLoop() {
+      var stepping = false;
 
-        var now = new Date().getTime();
-        var numFrames = Math.floor((now - lastFrame) / (1000 / FRAME_RATE));
-        lastFrame = lastFrame + numFrames * (1000 / FRAME_RATE);
-        if (numFrames > 5) {
-          numFrames = 1;
+      var gameStruct = {
+        tick: function(t) {
+          if (KB.keyPressed('s')) {
+            stepping = !stepping;
+          }
+          if (stepping || KB.keyPressed('n')) {
+            Collider.stepAll(boxes, t);
+          }
+        },
+        render: function() {
+          daRenderer.render(function() {
+            var ctx = daRenderer.context();
+            ctx.fillStyle = 'rgb(50, 255, 60)';
+            for (var i = 0; i < boxes.length; ++i) {
+              ctx.fillRect(boxes[i].x(), boxes[i].y(),
+                           boxes[i].w(), boxes[i].h());
+            }
+          });
         }
-        for (var i = 0; i < numFrames; i++) {
-          tickFn(1 / FRAME_RATE);
-        }
-        daRenderer.tick();
-        daRenderer.render(renderFn);
+      };
 
-        requestAnimFrame(renderLoop, daRenderer.canvasElem_);
-      })();
+      Pidgine.run(gameStruct);
     </script>
   </body>
 </html>
