@@ -55,8 +55,8 @@ Pidgine = {};
 //   tick: a function of one argument that steps time forward by that amount.
 //   render: a function that renders something.
 Pidgine.run = function(gameStruct) {
-  $(gameElem).keydown(KB.onKeyDown);
-  $(gameElem).keyup(KB.onKeyUp);
+  $(gameStruct.elem).keydown(KB.onKeyDown);
+  $(gameStruct.elem).keyup(KB.onKeyUp);
   var lastFrame = new Date().getTime();
   (function renderLoop() {
     var now = new Date().getTime();
