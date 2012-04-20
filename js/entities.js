@@ -114,12 +114,12 @@ Collider.stepAll = function(colliders, t) {
       other.aabb.addXY(xMult * xp / -2, yMult * yp / -2);
     }
     var it = Math.min(1, Math.max(0, ts[i].time));
-    if (collideStruct.direction == Collider.COLLIDE_X) {
-      collider.vx *= -0.8;
-    } else if (collideStruct.direction == Collider.COLLIDE_Y) {
-      collider.vy *= -0.8;
-    }
     collider.aabb.addXY(it * t * collider.vx, it * t * collider.vy);
+    if (collideStruct.time <= 1 && collideStruct.direction) {
+      collider.lastCollision = collideStruct;
+    } else {
+      collider.lastCollision = null;
+    }
   }
 };
 

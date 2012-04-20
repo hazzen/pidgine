@@ -51,6 +51,16 @@
           }
           if (stepping || KB.keyPressed('n')) {
             Collider.stepAll(boxes, t);
+            for (var i = 0; i < boxes.length; ++i) {
+              var box = boxes[i];
+              if (box.lastCollision) {
+                if (box.lastCollision.direction == Collider.COLLIDE_Y) {
+                  box.vy *= -1;
+                } else if (box.lastCollision.direction == Collider.COLLIDE_X) {
+                  box.vx *= -1;
+                }
+              }
+            }
           }
         },
         render: function() {

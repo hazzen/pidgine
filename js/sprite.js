@@ -52,6 +52,24 @@ Sprite.prototype.render = function(renderer, x, y, flags) {
 };
 
 // +----------------------------------------------------------------------------
+// | Sound
+function Sound(src) {
+  this.snd_ = new Audio(src);
+};
+
+Sound.prototype.load = function(onload) {
+  this.snd_.load();
+  onload();
+};
+
+Sound.prototype.play = function() {
+  if (window.chrome) {
+    this.snd_.load();
+  }
+  this.snd_.play();
+};
+
+// +----------------------------------------------------------------------------
 // | ImgLoader
 function ImgLoader() {
   this.loads_ = 0;
